@@ -1,2 +1,2 @@
-# claw2ee
+# claw2EE
 openclaw or xClaw 2 Enterprise Edition
