@@ -229,6 +229,8 @@ MIT License - See [LICENSE](LICENSE) file.
 
 Contributions are welcome! Please read our contributing guidelines before submitting PRs.
 
+Support SWE-Bench. 
+
 ## Contact
 
 https://githiub.com/xbsdchina/claw2ee
