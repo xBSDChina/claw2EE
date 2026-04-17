@@ -1,0 +1,35 @@
+{
+  "vms": {
+    "lab": {
+      "host": "192.168.1.88",
+      "user": "claw2ee10",
+      "password": "test1234"
+    },
+  },
+  "llm": {
+    "aliyun": {
+      "apiKey": "YOUR-API-KEY",
+      "endpoint": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+      "defaultModel": "qwen3.6-plus",
+      "protocol": "openai"
+    },
+    "wisemodel": {
+      "apiKey": "YOUR-API-KEY",
+      "endpoint": "https://api.wisemodel.cn/v1/chat/completions",
+      "defaultModel": "minimax-m2.5-highspeed",
+      "protocol": "openai"
+    },
+    "nvidia": {
+      "apiKey": "YOUR-API-KEY",
+      "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+      "defaultModel": "deepseek-ai/deepseek-v3.1-terminus",
+      "protocol": "openai"
+    },
+    "moonshot": {
+      "apiKey": "YOUR-API-KEY",
+      "endpoint": "https://api.moonshot.cn/v1/chat/completions",
+      "defaultModel": "moonshot-v1-8k",
+      "protocol": "openai"
+    }
+  }
+}

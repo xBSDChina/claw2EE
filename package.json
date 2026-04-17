@@ -1,0 +1,36 @@
+{
+  "name": "claw2ee",
+  "version": "7.0.0",
+  "description": "Claw2EE Enterprise - 企业级 AI Agent 协作平台 - 基于 G-HICS-AM 理论的下一代智能代理框架",
+  "main": "index-enterprise.cjs",
+  "scripts": {
+    "start": "node index-enterprise.cjs",
+    "dev": "node index-enterprise.cjs",
+    "demo": "node examples/demo.js",
+    "test": "node examples/demo.js"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "multi-agent",
+    "g-hics-am",
+    "mcp",
+    "llm",
+    "openclaw",
+    "enterprise",
+    "agi"
+  ],
+  "author": "BMDC Group",
+  "license": "MIT",
+  "homepage": "https://github.com/bmdc/claw2ee",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bmdc/claw2ee"
+  },
+  "dependencies": {
+    "ws": "^8.20.0"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}
