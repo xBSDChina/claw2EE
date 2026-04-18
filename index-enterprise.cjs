@@ -143,6 +143,41 @@ function callLLM(provider, model, prompt, system, maxTokens, cb) {
     });
 }
 
+
+
+
+
+// ============== SWE-bench Evaluation Mode ==============
+var SWEBENCH_MODE = process.env.CLAW_EVAL_MODE === 'swebench';
+
+function extract_diff(output) {
+    if (!output) return { error: 'Empty output' };
+    var lines = output.split('\n');
+    var inDiff = false, diffLines = [], hasValidDiff = false;
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (/^diff\s+--git|^--- a\/|^@@\s+-/.test(line)) { inDiff = true; hasValidDiff = true; }
+        if (inDiff) diffLines.push(line);
+    }
+    if (!hasValidDiff) return { error: 'No valid diff found' };
+    var diff = diffLines.join('\n');
+    if (!/^diff\s+--git|^\+\+\+ b\/|^-{3}\s+a\//.test(diff)) return { error: 'Invalid diff format' };
+    return { diff: diff };
+}
+
+var _origCallLLM = callLLM;
+callLLM = function(p, m, pr, s, mt, cb) {
+    _origCallLLM(p, m, pr, s, mt, function(e, r) {
+        if (e) { cb(e, null); return; }
+        if (SWEBENCH_MODE && r && r.response) {
+            var dr = extract_diff(r.response);
+            if (dr.error) cb(new Error('SWEBENCH: ' + dr.error), null);
+            else { r.response = dr.diff; r.swebench_mode = true; cb(null, r); }
+        } else { cb(null, r); }
+    });
+};
+if (SWEBENCH_MODE) console.log('[SWEBENCH] Evaluation mode enabled');
+
 function sshExec(host, user, pass, cmd, timeout, cb) {
     if (host === '192.168.122.150' || host === 'localhost') {
         exec(cmd, { timeout: timeout || 60000 }, cb);
@@ -204,7 +239,16 @@ var server = http.createServer(function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     if (req.method === 'OPTIONS') { res.writeHead(200); res.end(); return; }
     var p = req.url.split('?')[0];
-    if (p === '/health') return res.end(JSON.stringify({ status: 'healthy', service: 'claw2ee', version: '7.0', theory: 'G-HICS-AM' }));
+    if (p === '/health') {
+        var health = { status: 'healthy', service: 'claw2ee', version: '7.0', theory: 'G-HICS-AM' };
+        if (SWEBENCH_MODE) {
+            health.swebench_mode = true;
+            health.swebench_eval = 'enabled';
+            health.extract_diff = true;
+            health.llm_output = 'pure_diff_only';
+        }
+        return res.end(JSON.stringify(health));
+    };
     if (p === '/api/v1/tools/') return res.end(JSON.stringify({ tools: Object.keys(tools).map(function (k) { return { name: k, description: tools[k].description }; }) }));
     if (p.startsWith('/api/v1/tools/')) {
         var n = p.split('/').pop();
@@ -246,3 +290,6 @@ server.listen(3004, function () {
 });
 
 new WebSocket.Server({ port: 8082 }).on('connection', function (ws) { ws.on('message', function (m) { ws.send(JSON.stringify({ echo: m.toString(), protocol: 'G-HICS-AM-MCP' })); }); });
+
+
+

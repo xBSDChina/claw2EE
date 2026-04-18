@@ -1,0 +1,64 @@
+# Claw2EE SWE-bench Configuration
+
+# SWE-bench Evaluation Mode Configuration
+# This config is used when CLAW_EVAL_MODE=swebench
+
+swebench:
+  # Mode activation
+  enabled: true
+  eval_mode: swebench
+  
+  # Output settings
+  output:
+    # Only return pure diff format
+    extract_diff: true
+    # Valid diff validation
+    validate_format: true
+    # Fallback behavior on invalid diff
+    on_invalid_diff: "error"  # options: error, fallback, pass_through
+  
+  # LLM settings
+  llm:
+    # System prompt for diff generation
+    system_prompt: "You are a SWE-bench code修复专家。只返回纯git diff格式，不要其他解释。"
+    # Max tokens for diff output
+    max_tokens: 4096
+    # Temperature (lower = more deterministic)
+    temperature: 0.2
+  
+  # Diff extraction patterns
+  diff_patterns:
+    - "^diff --git"
+    - "^--- a/"
+    - "^\\+\\+\\+ b/"
+    - "^@@ -\\d+"
+  
+  # Health check indicators
+  health:
+    include_swebench_status: true
+    indicators:
+      - swebench_mode
+      - swebench_eval
+      - extract_diff
+      - llm_output
+
+# API Endpoint
+api:
+  base_url: "http://localhost:3004"
+  health_endpoint: "/health"
+  llm_endpoint: "/api/v1/tools/llm_query"
+
+# Example usage in SWE-bench
+# 
+# 1. Start Claw2EE in SWE-bench mode:
+#    CLAW_EVAL_MODE=swebench node index-enterprise.cjs
+#
+# 2. Check health:
+#    curl -s localhost:3004/health
+#    # Returns: {"swebench_mode": true, "extract_diff": true, ...}
+#
+# 3. Query LLM for patch:
+#    curl -X POST localhost:3004/api/v1/tools/llm_query \
+#      -H 'Content-Type: application/json' \
+#      -d '{"provider":"wisemodel","prompt":"Fix bug in file"}'
+#    # Returns: {"response": "diff --git...", "swebench_mode": true}
